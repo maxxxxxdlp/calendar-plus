@@ -22,7 +22,6 @@ export function TrackCurrentView({
   );
 
   useCurrentTracker(setCurrentView);
-  React.useEffect(() => {}, []);
 
   return (
     <CurrentViewContext.Provider value={currentView}>
@@ -31,6 +30,9 @@ export function TrackCurrentView({
   );
 }
 
+/**
+ * Listen for changes to current URL
+ */
 function useCurrentTracker(
   setCurrentView: (newCurrentView: CurrentView | undefined) => void
 ) {
@@ -38,6 +40,7 @@ function useCurrentTracker(
     let lastPath = '';
 
     const parseUrl = () => setCurrentView(parsePath(window.location.pathname));
+    // Parse initial URL
     parseUrl();
 
     function handleUpdate(request: { readonly message: string }) {
@@ -55,6 +58,9 @@ function useCurrentTracker(
 
 const commonPrefix = `/calendar/u/0/r/`;
 
+/**
+ * Extract current date from the Google Calendar URL
+ */
 function parsePath(path: string): CurrentView | undefined {
   if (!path.startsWith(commonPrefix)) return undefined;
   const [rawView, ...date] = path.slice(commonPrefix.length).split('/');
