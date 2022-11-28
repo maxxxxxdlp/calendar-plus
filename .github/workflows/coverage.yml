@@ -1,0 +1,39 @@
+name: Jest coverage comment
+on:
+  push:
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: ./src/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get number of CPU cores
+        id: cpu-cores
+        uses: SimenB/github-actions-cpu-cores@v1
+      
+      - name: Set time zone to America/Chicago
+        uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: "America/Chicago"
+          timezoneMacos: "America/Chicago"
+          timezoneWindows: "America/Chicago"
+
+      - name: Run tests
+        run: npm run unitTests -- --maxWorkers ${{ steps.cpu-cores.outputs.count }}
+        
+      - name: Jest coverage comment
+        uses: MishaKav/jest-coverage-comment@main
+        with:
+          coverage-summary-path: ./coverage/coverage-final.json
